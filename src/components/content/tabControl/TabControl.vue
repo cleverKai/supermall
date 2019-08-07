@@ -17,7 +17,8 @@
       methods:{
         itemClick(index){
           this.currentIndex = index;
-
+          //子组件往外传，自定义事件$emit
+          this.$emit('tabClick',index)
         }
       },
       props:{

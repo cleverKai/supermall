@@ -23,5 +23,11 @@
 </script>
 
 <style scoped>
-
+   .goods{
+     /*根据每个宽度的大小来一行显示*/
+     display: flex;
+     flex-wrap: wrap;
+     justify-content: space-around;
+     padding: 2px;
+   }
 </style>

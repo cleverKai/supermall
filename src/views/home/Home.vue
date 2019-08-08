@@ -2,7 +2,7 @@
       <div id="home">
        <nav-bar class="home-nav"><div slot="center">购物街</div></nav-bar>
 
-        <scroll class="content">
+        <scroll class="content" ref="scroll" :probe-type="3" @scroll="contentScroll" :pull-up-load="true" @pullingUp="loadMore">
         <home-swiper :banners="banners"></home-swiper>
         <recommend-view :recommends="recommends"></recommend-view>
         <feature-view></feature-view>
@@ -10,6 +10,8 @@
                      @tabClick="tabClick"></tab-control>
         <goods-list :goods = "goods[currentType].list"></goods-list>
         </scroll>
+<!--        组件不能直接监听点击,监听组件的原生事件需要在前面后面.native-->
+        <back-top @click.native="backClick" v-show="isShowBackTop"></back-top >
       </div>
   </template>
 
@@ -22,6 +24,7 @@
     import TabControl from 'components/content/tabControl/TabControl'
     import GoodsList from 'components/content/goods/GoodsList'
     import Scroll from 'components/common/scroll/Scroll'
+    import BackTop from 'components/content/backTop/BackTop'
     //引入封装数据请求函数
     import {getHomeMultidata,getHomeGoods} from "../../network/home";
     export default {
@@ -38,7 +41,8 @@
                'new': {page: 0 ,list:[]},
                'sell':{page: 0 ,list:[]}
               },
-              currentType:'pop'
+              currentType:'pop',
+              isShowBackTop:false,
             }
          },
         components:{
@@ -49,7 +53,8 @@
           FeatureView,
           TabControl,
           GoodsList,
-          Scroll
+          Scroll,
+          BackTop
 
         },
       //生命周期函数，create，当组件创建完过后发送网络请求数据
@@ -80,6 +85,8 @@
             //把从请求的数据里面的list全部保存到我新定义的goods对象里面的list数组
           this.goods[type].list.push(...res.data.list);
           this.goods[type].page += 1;
+
+          this.$refs.scroll.finishPullUp()
           })
         },
         // tabcontrol事件监听
@@ -95,6 +102,23 @@
               this.currentType = 'sell'
               break
           }
+        },
+        backClick(){
+          //拿到scroll组件对象,调用scrollTo方法,回到顶部
+          this.$refs.scroll.scrollTo(0,0,500)
+        },
+        //监听滚动的距离
+        contentScroll(position){
+          // position.y
+          if(-(position.y)>1000){
+            this.isShowBackTop = true
+          }else {
+            this.isShowBackTop = false
+          }
+        },
+        //监听上拉加载更多
+        loadMore(){
+          this.getHomeGoods(this.currentType)
         }
 
       }

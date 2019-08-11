@@ -2,7 +2,7 @@
       <div id="home">
        <nav-bar class="home-nav"><div slot="center">购物街</div></nav-bar>
 
-        <scroll class="content" ref="scroll" :probe-type="3" @scroll="contentScroll" :pull-up-load="true" @pullingUp="loadMore">
+        <scroll class="content" ref="scroll" :probe-type="3" @scroll="contentScroll" :pull-up-load="true" >
         <home-swiper :banners="banners"></home-swiper>
         <recommend-view :recommends="recommends"></recommend-view>
         <feature-view></feature-view>
@@ -65,6 +65,11 @@
          this.getHomeGoods('pop');
          this.getHomeGoods('new');
          this.getHomeGoods('sell');
+
+         //监听事件总线，监听item中的图片加载完成
+         this.$bus.$on('itemImageLoad', () =>{
+           this.$refs.scroll.refresh()
+         })
        },
       methods:{
         /**
@@ -86,7 +91,7 @@
           this.goods[type].list.push(...res.data.list);
           this.goods[type].page += 1;
 
-          this.$refs.scroll.finishPullUp()
+          // this.$refs.scroll.finishPullUp()
           })
         },
         // tabcontrol事件监听
@@ -117,9 +122,9 @@
           }
         },
         //监听上拉加载更多
-        loadMore(){
-          this.getHomeGoods(this.currentType)
-        }
+        // loadMore(){
+        //   this.getHomeGoods(this.currentType)
+        // }
 
       }
     }

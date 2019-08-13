@@ -1,13 +1,14 @@
   <template>
       <div id="home">
        <nav-bar class="home-nav"><div slot="center">购物街</div></nav-bar>
-
-        <scroll class="content" ref="scroll" :probe-type="3" @scroll="contentScroll" :pull-up-load="true" >
-        <home-swiper :banners="banners"></home-swiper>
+        <tab-control :titles="['流行','新款','精选']"
+                     @tabClick="tabClick" ref="tabControl1"class="tab-control" v-show="isTabFixed"></tab-control>
+        <scroll class="content" ref="scroll" :probe-type="3" @scroll="contentScroll" :pull-up-load="true" @pullingUp="loadMore">
+        <home-swiper :banners="banners" @swiperImageLoad="swiperImageLoad"></home-swiper>
         <recommend-view :recommends="recommends"></recommend-view>
         <feature-view></feature-view>
-        <tab-control class="tab-control" :titles="['流行','新款','精选']"
-                     @tabClick="tabClick"></tab-control>
+        <tab-control :titles="['流行','新款','精选']"
+                     @tabClick="tabClick" ref="tabControl2" ></tab-control>
         <goods-list :goods = "goods[currentType].list"></goods-list>
         </scroll>
 <!--        组件不能直接监听点击,监听组件的原生事件需要在前面后面.native-->
@@ -43,6 +44,9 @@
               },
               currentType:'pop',
               isShowBackTop:false,
+              tabOffsetTop:0,
+              isTabFixed:false,
+              saveY:0,
             }
          },
         components:{
@@ -54,7 +58,8 @@
           TabControl,
           GoodsList,
           Scroll,
-          BackTop
+          BackTop,
+
 
         },
       //生命周期函数，create，当组件创建完过后发送网络请求数据
@@ -65,13 +70,42 @@
          this.getHomeGoods('pop');
          this.getHomeGoods('new');
          this.getHomeGoods('sell');
-
-         //监听事件总线，监听item中的图片加载完成
-         this.$bus.$on('itemImageLoad', () =>{
-           this.$refs.scroll.refresh()
-         })
        },
+      mounted(){
+
+       // const refresh =  this.debounce(this.$refs.scroll.refresh,500)
+        //当我的scroll.vue挂载完，才能拿到scroll对象
+        //监听事件总线，监听item中的图片加载完成
+        this.$bus.$on('itemImageLoad', () =>{
+          this.$refs.scroll.refresh()
+        })
+      },
+      destroyed(){
+        console.log('destroyed');
+      },
+      //回到页面，将我离开时记录的位置拿到，迅速回到离开时的位置
+      activated(){
+        this.$refs.scroll.scrollTo(0,this.saveY,0)
+        this.$refs.scroll.refresh();
+      },
+      //切换到其他页面，将我切换之前的高度记录，然后赋值给saveY
+      deactivated(){
+        this.saveY = this.$refs.scroll.scroll.y;
+      },
       methods:{
+            //封装防抖函数
+            // debounce(func,delay){
+            //   let timer = null;
+            //
+            //   return function () {
+            //     if(timer){
+            //       clearTimeout(timer)
+            //     }
+            //     timer = setTimeout(()=>{
+            //       func.apply()
+            //     },delay)
+            //   }
+            // },
         /**
          * 网络请求相关方法
          */
@@ -91,7 +125,8 @@
           this.goods[type].list.push(...res.data.list);
           this.goods[type].page += 1;
 
-          // this.$refs.scroll.finishPullUp()
+          //完成的上拉加载更多
+          this.$refs.scroll.finishPullUp()
           })
         },
         // tabcontrol事件监听
@@ -107,6 +142,8 @@
               this.currentType = 'sell'
               break
           }
+          this.$refs.tabControl1.currentIndex = index;
+          this.$refs.tabControl2.currentIndex = index;
         },
         backClick(){
           //拿到scroll组件对象,调用scrollTo方法,回到顶部
@@ -114,17 +151,25 @@
         },
         //监听滚动的距离
         contentScroll(position){
+          //判断BackTop是否显示
           // position.y
           if(-(position.y)>1000){
             this.isShowBackTop = true
           }else {
             this.isShowBackTop = false
           }
+          //2.决定tabControl是否吸顶（position:fixed）
+           this.isTabFixed = (-position.y)>this.tabOffsetTop
         },
-        //监听上拉加载更多
-        // loadMore(){
-        //   this.getHomeGoods(this.currentType)
-        // }
+        // 监听上拉加载更多
+        loadMore(){
+          this.getHomeGoods(this.currentType)
+        },
+        swiperImageLoad(){
+          //获取tabControl的offsetTop
+          //所有的组件都有一个$el:获取组件中的元素
+         this.tabOffsetTop =  this.$refs.tabControl2.$el.offsetTop
+        }
 
       }
     }
@@ -147,11 +192,11 @@
       right: 0;
       z-index: 9;
     }
-    .tab-control{
-      position: sticky;
-      top: 44px;
-      z-index: 9;
-    }
+    /*.tab-control{*/
+    /*  position: sticky;*/
+    /*  top: 44px;*/
+    /*  z-index: 9;*/
+    /*}*/
     .content{
       /*height: 300px;*/
       overflow: hidden;
@@ -160,6 +205,10 @@
       bottom: 49px;
       left: 0;
       right: 0;
+    }
+    .tab-control{
+      position: relative;
+      z-index: 9;
     }
     /*.content{*/
     /*  height: 300px;*/

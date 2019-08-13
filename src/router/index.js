@@ -5,6 +5,7 @@ const  Home = () => import('../views/home/Home')
 const  Category = () => import('../views/category/Category')
 const  Cart = () => import('../views/cart/Cart')
 const  Profile = () => import('../views/profile/Profile')
+const  Detail = () => import('../views/detail/Detail')
  //1.安装VueRouter
 Vue.use(VueRouter)
 //创建路由对象,配置路由信息
@@ -29,7 +30,11 @@ const  routes = [
   {
     path:'/profile',
     component: Profile
-  }
+  },
+  {
+    path:'/detail/:iid',
+    component:Detail
+  },
 
 
 ]

@@ -15,10 +15,10 @@
           type: Number,
           default: 0
         },
-        // pullUpLoad:{
-        //   type:Boolean,
-        //   default:false
-        // },
+        pullUpLoad:{
+          type:Boolean,
+          default:false
+        },
       },
       data() {
         return {
@@ -39,21 +39,24 @@
 
           })
         // //3.监听上拉事件
-        // this.scroll.on('pullingUp', () =>{
-        //   this.$emit('pullingUp')
-        // })
+        if(this.pullUpLoad){
+          this.scroll.on('pullingUp', () =>{
+            this.$emit('pullingUp')
+            // console.log('监听到滚到底部');
+          })
+        }
       },
           methods: {
           scrollTo(x, y, time)
           {
-            this.scroll.scrollTo(x, y, time)
+           this.scroll  && this.scroll.scrollTo(x, y, time)
           },
             //结束当前上拉加载更多，才能继续的上拉加载更多
           finishPullUp(){
-          this.scroll.finishPullUp()
+            this.scroll  && this.scroll.finishPullUp()
           },
           refresh(){
-            this.scroll.refresh();
+            this.scroll && this.scroll.refresh();
           }
         }
 

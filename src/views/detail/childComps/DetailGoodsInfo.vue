@@ -31,9 +31,9 @@
         }
       },
     methods:{
-      imgLoad(){
-        if(++this.counter === this.imageLength)
-        this.$emit('imageLoad')
+		  //监听图片加载完
+      imgLoad() {
+        this.$emit('detailImageLoad')
       }
     },
     watch:{

@@ -91,6 +91,8 @@
       //切换到其他页面，将我切换之前的高度记录，然后赋值给saveY
       deactivated(){
         this.saveY = this.$refs.scroll.scroll.y;
+        //取消全局事件监听
+        // this.$bus.$off('itemImageLoad',)
       },
       methods:{
             //封装防抖函数

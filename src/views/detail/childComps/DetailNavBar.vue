@@ -27,6 +27,8 @@
       methods:{
         titleClick(index){
           this.currentIndex = index
+          //向外发出点击事件
+          this.$emit("titleClick",index);
         },
         backClick(){
           this.$router.go(-1)

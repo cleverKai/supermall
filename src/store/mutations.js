@@ -6,6 +6,8 @@ export default {
     payload.count++;
   },
   addToCart(state,payload){
+    //当添加到购物车里面该商品被选中
+    payload.checked = true;
     state.cartList.push(payload);
   }
 }

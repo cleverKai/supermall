@@ -11,7 +11,7 @@
 
 
 <!--      底部汇总-->
-
+  <car-bottom-bar></car-bottom-bar>
     </div>
 </template>
 <script>
@@ -19,11 +19,13 @@
   import {mapGetters} from 'vuex'
 
   import CartList from './childComps/CartList'
+  import CarBottomBar from './childComps/CartBottomBar'
     export default {
         name: "cart",
       components:{
         NavBar,
-        CartList
+        CartList,
+        CarBottomBar
       },
       computed:{
           //两种语法
